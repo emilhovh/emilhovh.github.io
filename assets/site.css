@@ -371,6 +371,7 @@ h3 {
 }
 
 .views__list {
+  position: relative;
   display: flex;
   gap: 4px;
   overflow-x: auto;
@@ -1281,6 +1282,502 @@ h3 {
   gap: 12px;
 }
 
+/* ---------- motion ----------
+ * Scoped to .motion, which app.js sets only when the visitor has not asked for reduced motion.
+ * Without it the page is complete and still; these rules only add movement.
+ */
+
+.word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.ch {
+  display: inline-block;
+}
+
+.caret {
+  display: inline-block;
+  width: 0.5ch;
+  height: 0.95em;
+  margin-left: 6px;
+  vertical-align: -0.12em;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.type-caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--stamp);
+  animation: blink 0.8s steps(1) infinite;
+}
+
+.views__indicator {
+  display: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em) rotate(3deg);
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* masthead: the name rises letter by letter, the "now" panel follows */
+.motion .masthead .ch {
+  animation: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 32ms + 60ms);
+}
+
+.motion .caret {
+  animation: blink 1.1s steps(1) infinite;
+}
+
+.motion .now-list li {
+  animation: slide-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(650ms + var(--i, 0) * 110ms);
+}
+
+.motion .now-list .badge {
+  animation: pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+  animation-delay: calc(820ms + var(--i, 0) * 110ms);
+}
+
+.motion .legend li {
+  animation: fade-in 0.5s ease both;
+  animation-delay: calc(1100ms + var(--i, 0) * 70ms);
+}
+
+.motion .badge:hover {
+  animation: spin 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+/* view switcher */
+.motion .views__indicator {
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--ink);
+}
+
+.motion .views__indicator.ready {
+  transition:
+    transform 0.45s cubic-bezier(0.3, 0.9, 0.2, 1),
+    width 0.45s cubic-bezier(0.3, 0.9, 0.2, 1);
+}
+
+.motion .view-tab[aria-selected='true'] {
+  border-bottom-color: transparent;
+}
+
+.motion .view.entering {
+  animation: view-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* timeline: the graph draws itself as commits scroll in; HEAD keeps pulsing */
+.motion .commit .rail {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.8s cubic-bezier(0.5, 0, 0.2, 1);
+}
+
+.motion .commit.seen .rail {
+  clip-path: inset(0 0 0 0);
+}
+
+.motion .commit .commit-body {
+  transition:
+    opacity 0.6s ease 0.1s,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s;
+}
+
+.motion .commit:not(.seen) .commit-body {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.motion .commit.seen .dot {
+  animation: pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.2s both;
+}
+
+.motion .commit.is-head .dot::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--dot);
+  animation: head-ping 2.4s ease-out infinite;
+}
+
+@keyframes head-ping {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+.motion .commit.leaving {
+  animation: leave 0.26s ease-in forwards;
+}
+
+@keyframes leave {
+  to {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+}
+
+.motion .aside-block .diff div {
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  transition-delay: calc(var(--i, 0) * 28ms);
+}
+
+.motion .aside-block.seen .diff div {
+  opacity: 1;
+  transform: none;
+}
+
+.motion .meter i.on {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: calc(300ms + var(--i, 0) * 90ms);
+}
+
+.motion .aside-block.seen .meter i.on {
+  transform: none;
+}
+
+/* map: lines draw out of the depot, stations pop up, trains run and stop */
+.motion .map.drawing .track {
+  stroke-dasharray: var(--len) var(--len);
+  stroke-dashoffset: var(--len);
+  animation: draw-track 1.4s cubic-bezier(0.55, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--ti, 0) * 110ms);
+}
+
+@keyframes draw-track {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.motion .map.drawing .station {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: station-pop 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+  animation-delay: calc(800ms + var(--i, 0) * 55ms);
+}
+
+@keyframes station-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+.motion .map.drawing .now-label {
+  animation: fade-in 0.6s ease 1.5s both;
+}
+
+.train .car {
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.train .win {
+  fill: rgba(255, 255, 255, 0.9);
+}
+
+.station .ping {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.station .ping.go {
+  animation: ping 0.9s ease-out;
+}
+
+@keyframes ping {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+.station .ring {
+  transition: stroke-width 0.15s ease;
+}
+
+.station:hover .ring {
+  stroke-width: 7;
+}
+
+.motion .map .now-label {
+  animation: now-blink 2.8s ease-in-out infinite;
+}
+
+@keyframes now-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.motion .depot {
+  cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.motion .depot .signal {
+  animation: blink 1.6s steps(1) infinite;
+}
+
+.motion .depot .signal + .signal {
+  animation-delay: 0.8s;
+}
+
+.motion .depot.wiggle {
+  animation: wiggle 0.5s ease;
+}
+
+@keyframes wiggle {
+  25% {
+    transform: rotate(-3deg) scale(1.03);
+  }
+  75% {
+    transform: rotate(3deg) scale(1.03);
+  }
+}
+
+.map-card {
+  position: relative;
+}
+
+.map-card.rush::after {
+  content: 'Rush hour';
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--d-games);
+  color: var(--ink);
+  font: 700 13px var(--mono);
+  animation: pop 0.4s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+/* paper: figures grow when read, headings get a pen stroke */
+.motion .fig .stem {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.5, 0, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 55ms);
+}
+
+.motion figure.seen .fig .stem {
+  stroke-dashoffset: 0;
+}
+
+.motion .fig .dot,
+.motion .fig .bar {
+  transform-box: fill-box;
+  transition: transform 0.6s cubic-bezier(0.2, 1.4, 0.4, 1);
+  transition-delay: calc(var(--i, 0) * 55ms + 300ms);
+}
+
+.motion .fig .dot {
+  transform-origin: center;
+  transform: scale(0);
+}
+
+.motion .fig .bar {
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+.motion figure.seen .fig .dot,
+.motion figure.seen .fig .bar {
+  transform: none;
+}
+
+.motion .paper h3.num {
+  background: linear-gradient(var(--stamp), var(--stamp)) 0 100% / 0 2px no-repeat;
+  transition: background-size 0.9s cubic-bezier(0.5, 0, 0.2, 1) 0.15s;
+}
+
+.motion .paper h3.num.seen {
+  background-size: 2.4em 2px;
+}
+
+/* dossier: sheets come off the stack, the stamp lands with a thud, redactions shimmer */
+.motion .sheet {
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.motion .sheet:not(.seen) {
+  opacity: 0;
+  transform: translateY(48px) rotate(-1.5deg);
+}
+
+.motion .sheet.seen .stamp,
+.motion .stamp.restamp {
+  animation: stamp 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.motion .sheet.seen .stamp {
+  animation-delay: 0.6s;
+}
+
+.motion .stamp.restamp {
+  animation-delay: 0s;
+}
+
+.motion .stamp {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+  70% {
+    opacity: 0.9;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+}
+
+.motion .sheet.cover.seen,
+.motion .sheet.thud {
+  animation: thud 0.35s ease-out;
+}
+
+.motion .sheet.cover.seen {
+  animation-delay: 0.95s;
+}
+
+.motion .sheet.thud {
+  animation-delay: 0.3s;
+}
+
+@keyframes thud {
+  30% {
+    translate: 0 4px;
+  }
+  60% {
+    translate: 0 -1px;
+  }
+}
+
+.motion .sheet:not(.seen) .case {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+.motion .case {
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: calc(250ms + var(--i, 0) * 80ms);
+}
+
+.motion .redact {
+  background-color: var(--ink);
+  background-image: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.22) 45%, transparent 60%);
+  background-size: 260% 100%;
+  animation: sheen 5s ease-in-out infinite;
+  animation-delay: calc(var(--r, 0) * 1s);
+}
+
+@keyframes sheen {
+  0%,
+  70% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -60% 0;
+  }
+}
+
+.motion .sheet .signature {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.4s cubic-bezier(0.6, 0, 0.3, 1) 0.6s;
+}
+
+.motion .sheet.seen .signature {
+  clip-path: inset(0 0 0 0);
+}
+
 /* ---------- responsive ---------- */
 
 @media (max-width: 960px) {
@@ -1357,5 +1854,18 @@ h3 {
   }
   .running {
     display: none;
+  }
+  .motion *,
+  .motion *::before,
+  .motion *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .motion .fig .stem {
+    stroke-dashoffset: 0 !important;
+  }
+  .motion .fig .dot,
+  .motion .fig .bar {
+    transform: none !important;
   }
 }

@@ -3,6 +3,10 @@
   const cv = window.CV
   const { month, esc } = window.CVfmt
 
+  // motion is an enhancement: off for visitors who ask for reduced motion, and with ?static (screenshots, tests)
+  const MOTION = !matchMedia('(prefers-reduced-motion: reduce)').matches && !new URLSearchParams(location.search).has('static')
+  if (MOTION) document.documentElement.classList.add('motion')
+
   // ---------- shared vocabulary ----------
 
   const CODE = { web: 'W', data: 'D', ml: 'M', games: 'G', systems: 'S' }
@@ -22,6 +26,12 @@
 
   const badge = (d, cls = '') => `<span class="badge ${cls}" data-d="${d}" title="${esc(cv.domains[d])}">${CODE[d]}</span>`
   const chips = (items) => `<ul class="chips">${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`
+  /** a heading split into letters that can rise one by one; words stay unbreakable */
+  const letters = (text) =>
+    `<span aria-hidden="true">${text
+      .split(' ')
+      .map((word) => `<span class="word">${[...word].map((ch) => `<span class="ch">${esc(ch)}</span>`).join('')}</span>`)
+      .join(' ')}</span>`
   const redact = () =>
     `<span class="redact" tabindex="0" role="img" aria-label="Client name withheld under a non-disclosure agreement" data-tip="Client name withheld under NDA">████████████</span><span class="nda-tag">NDA</span>`
   const orgOf = (e) => (e.kind === 'nda' ? redact() : e.orgUrl ? `<a href="${e.orgUrl}" rel="noopener">${esc(e.org)}</a>` : esc(e.org))
@@ -47,8 +57,8 @@
       <div class="wrap masthead__grid">
         <div>
           <p class="place">${esc(cv.location)}</p>
-          <h1>${esc(cv.name)}</h1>
-          <p class="lede">${esc(cv.role)} — ${esc(cv.focus)}</p>
+          <h1 aria-label="${esc(cv.name)}">${letters(cv.name)}</h1>
+          <p class="lede">${esc(cv.role)} — ${esc(cv.focus)}<span class="caret" aria-hidden="true"></span></p>
           <p class="summary">${esc(cv.summary)}</p>
           <div class="actions">
             <a class="btn btn--solid" href="mailto:${cv.email}">Email me</a>
@@ -237,9 +247,9 @@
       const bottom = Math.max(...ys)
       const labelY = s.above ? top - 44 : bottom + 42
       return `
-        <g class="station" tabindex="0" role="button" data-id="${s.id}" aria-label="${esc(s.title)}, ${esc(s.when)}">
+        <g class="station" tabindex="0" role="button" data-id="${s.id}" data-lines="${s.lines.join(' ')}" data-x="${s.x}" aria-label="${esc(s.title)}, ${esc(s.when)}">
           ${ys.length > 1 ? `<line class="passage" x1="${s.x}" y1="${top}" x2="${s.x}" y2="${bottom}"/>` : ''}
-          ${ys.map((y) => `<circle class="ring" cx="${s.x}" cy="${y}" r="13"/>`).join('')}
+          ${s.lines.map((l) => `<circle class="ping" data-d="${l}" cx="${s.x}" cy="${trackY[l]}" r="13"/><circle class="ring" cx="${s.x}" cy="${trackY[l]}" r="13"/>`).join('')}
           <text x="${s.x}" y="${labelY}" text-anchor="middle">${esc(SHORT[s.id] ?? s.title)}</text>
           <text class="date" x="${s.x}" y="${labelY + 20}" text-anchor="middle">${esc(s.label)}</text>
         </g>`
@@ -248,10 +258,16 @@
     const svg = `
       <svg class="map" viewBox="0 0 ${W} ${H}" role="group" aria-label="Transit map of roles, training and projects">
         <g class="axis">${years.map((ym) => `<line x1="${xOf(ym)}" y1="50" x2="${xOf(ym)}" y2="${H - 40}"/><text x="${xOf(ym)}" y="${H - 12}" text-anchor="middle">${ym.slice(0, 4)}</text>`).join('')}</g>
-        ${DOMAINS.map((d) => `<path class="track" d="${track(d)}" stroke="${COLOR[d]}"/>`).join('')}
-        <g class="depot"><rect x="${depot.x - 96}" y="${depot.y - 52}" width="192" height="104" rx="16"/><text x="${depot.x}" y="${depot.y - 6}" text-anchor="middle">UFAR</text><text class="depot-sub" x="${depot.x}" y="${depot.y + 22}" text-anchor="middle">since 2022</text></g>
-        ${DOMAINS.map((d) => `<text class="now-label" x="${endX + 18}" y="${trackY[d] + 6}">NOW</text>`).join('')}
+        ${DOMAINS.map((d) => `<path class="track" data-d="${d}" d="${track(d)}" stroke="${COLOR[d]}"/>`).join('')}
         ${stops.map(station).join('')}
+        <g class="trains" aria-hidden="true"></g>
+        <g class="depot"${MOTION ? ' role="button" tabindex="0" aria-label="UFAR depot: send out another train"' : ''}>
+          <rect x="${depot.x - 96}" y="${depot.y - 52}" width="192" height="104" rx="16"/>
+          <circle class="signal" cx="${depot.x + 74}" cy="${depot.y - 32}" r="6" fill="#00a651"/>
+          <circle class="signal" cx="${depot.x + 74}" cy="${depot.y - 14}" r="6" fill="#e4002b"/>
+          <text x="${depot.x}" y="${depot.y - 6}" text-anchor="middle">UFAR</text><text class="depot-sub" x="${depot.x}" y="${depot.y + 22}" text-anchor="middle">since 2022</text>
+        </g>
+        ${DOMAINS.map((d) => `<text class="now-label" x="${endX + 18}" y="${trackY[d] + 6}">NOW</text>`).join('')}
       </svg>`
 
     const timetable = DOMAINS.map((d) => {
@@ -264,7 +280,7 @@
     }).join('')
 
     return `
-      <p class="view-intro">The work as a transit network. Every line starts at university; roles, courses and projects are stations on the lines of the areas they belong to. Select a station to see it.</p>
+      <p class="view-intro">The work as a transit network. Every line starts at university; roles, courses and projects are stations on the lines of the areas they belong to. Select a station to see it.${MOTION ? ' Tap the UFAR depot to send out another train.' : ''}</p>
       <section class="map-card" aria-label="Network map"><p class="map-hint">Swipe the map sideways to follow the lines →</p><div class="map-scroll">${svg}</div></section>
       <section class="stop-detail" id="stop-detail" aria-live="polite"></section>
       <h2 class="section-title">Timetable by line</h2>
@@ -304,7 +320,7 @@
       return `
         <svg class="fig" viewBox="0 0 ${width} ${height}" role="img" aria-label="Technologies ranked by how many roles and projects use them">
           ${Array.from({ length: max + 1 }, (_, t) => `<line class="grid" x1="${x(t)}" y1="0" x2="${x(t)}" y2="${height - 24}"/><text x="${x(t)}" y="${height - 8}" text-anchor="middle">${t}</text>`).join('')}
-          ${top.map(([tech, n], i) => `<text x="${left - 10}" y="${i * rowH + 16}" text-anchor="end">${esc(tech)}</text><line x1="${x(0)}" y1="${i * rowH + 12}" x2="${x(n)}" y2="${i * rowH + 12}" stroke="#c9ced6"/><circle cx="${x(n)}" cy="${i * rowH + 12}" r="5" fill="#0c2340"/>`).join('')}
+          ${top.map(([tech, n], i) => `<text x="${left - 10}" y="${i * rowH + 16}" text-anchor="end">${esc(tech)}</text><line class="stem" pathLength="1" x1="${x(0)}" y1="${i * rowH + 12}" x2="${x(n)}" y2="${i * rowH + 12}" stroke="#c9ced6" style="--i:${i}"/><circle class="dot" cx="${x(n)}" cy="${i * rowH + 12}" r="5" fill="#0c2340" style="--i:${i}"/>`).join('')}
         </svg>`
     }
 
@@ -318,13 +334,13 @@
         return left + ((new Date(y, m - 1).getTime() - from) / (to - from)) * (width - left - 16)
       }
       const bars = (list, color) =>
-        list.map((e) => `<rect x="${x(e.start)}" width="${Math.max(5, x(e.end, 'end') - x(e.start))}" height="12" rx="2" fill="${color}"/>`).join('')
+        list.map((e, i) => `<rect class="bar" style="--i:${i}" x="${x(e.start)}" width="${Math.max(5, x(e.end, 'end') - x(e.start))}" height="12" rx="2" fill="${color}"/>`).join('')
       const rows = [
         ['Education', bars(education, '#00a651')],
         ['Employment', bars([...roles, ...earlier].filter((e) => e.kind === 'work'), '#0c2340')],
         ['NDA work', bars(roles.filter((e) => e.kind === 'nda'), '#b3261e')],
         ['Training', bars(earlier.filter((e) => e.kind === 'training'), '#8e44ad')],
-        ['Projects', projects.map((p) => `<circle cx="${x(p.date)}" cy="6" r="5" fill="#0072ce" fill-opacity="0.85"/>`).join('')],
+        ['Projects', projects.map((p, i) => `<circle class="dot" style="--i:${i}" cx="${x(p.date)}" cy="6" r="5" fill="#0072ce" fill-opacity="0.85"/>`).join('')],
       ]
       const rowH = 30
       const height = rows.length * rowH + 30
@@ -422,7 +438,7 @@
     return `
       <p class="view-intro">The same record, filed: a cover sheet, assignments, the earlier record, case files and capabilities. Confidential clients are redacted.</p>
       <div class="dossier">
-        <section class="sheet" aria-labelledby="d-subject">
+        <section class="sheet cover" aria-labelledby="d-subject">
           <span class="sheet-tab" aria-hidden="true">PERSONNEL</span>
           <div class="stamp" aria-hidden="true">CLEARED FOR HIRE</div>
           <p class="file-no">File EH-2022-0829 · Yerevan</p>
@@ -492,6 +508,7 @@
     }
     for (const v of VIEWS) document.getElementById(`view-${v.id}`).hidden = v.id !== id
     history.replaceState(null, '', `#${id}`)
+    window.dispatchEvent(new CustomEvent('cv:view', { detail: id }))
   }
   tabs.forEach((tab, i) => {
     tab.addEventListener('click', () => show(tab.dataset.view))
@@ -509,7 +526,23 @@
     button.addEventListener('click', () => {
       const on = button.getAttribute('aria-pressed') !== 'true'
       button.setAttribute('aria-pressed', String(on))
-      document.querySelectorAll(`.commit[data-lane="${button.dataset.lane}"]`).forEach((row) => (row.hidden = !on))
+      document.querySelectorAll(`.commit[data-lane="${button.dataset.lane}"]`).forEach((row) => {
+        if (!MOTION) {
+          row.hidden = !on
+          return
+        }
+        if (on) {
+          row.hidden = false
+          row.classList.remove('leaving', 'seen')
+          requestAnimationFrame(() => requestAnimationFrame(() => row.classList.add('seen')))
+        } else {
+          row.classList.add('leaving')
+          setTimeout(() => {
+            row.hidden = true
+            row.classList.remove('leaving')
+          }, 260)
+        }
+      })
     })
   })
 
@@ -533,4 +566,261 @@
   select('cretrix')
 
   document.querySelector('[data-print]')?.addEventListener('click', () => window.print())
+
+  // ---------- motion ----------
+  // Everything below only adds movement; the page above is complete without it.
+
+  if (!MOTION) return
+
+  const reflow = (el) => el.getBoundingClientRect()
+  const restart = (el, cls) => {
+    el.classList.remove(cls)
+    reflow(el)
+    el.classList.add(cls)
+  }
+  const indexChildren = (selector) =>
+    document.querySelectorAll(selector).forEach((parent) => [...parent.children].forEach((child, i) => child.style.setProperty('--i', i)))
+
+  indexChildren('.now-list')
+  indexChildren('.legend')
+  indexChildren('.diff')
+  indexChildren('.meter')
+  indexChildren('.cases')
+  document.querySelectorAll('.masthead .ch').forEach((ch, i) => ch.style.setProperty('--i', i))
+  document.querySelectorAll('.map .station').forEach((g, i) => g.style.setProperty('--i', i))
+  document.querySelectorAll('.redact').forEach((bar) => bar.style.setProperty('--r', (Math.random() * 4).toFixed(2)))
+
+  // reveal things once, as they scroll into view
+  const onSeen = new WeakMap()
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        entry.target.classList.add('seen')
+        observer.unobserve(entry.target)
+        onSeen.get(entry.target)?.(entry.target)
+      }
+    },
+    { rootMargin: '0px 0px -6% 0px', threshold: 0.06 },
+  )
+  const reveal = (selector, fn) =>
+    document.querySelectorAll(selector).forEach((el) => {
+      if (fn) onSeen.set(el, fn)
+      observer.observe(el)
+    })
+
+  // timeline: a commit hash spins through hex before it settles
+  const HEX = '0123456789abcdef'
+  const scramble = (el) => {
+    const final = el.textContent
+    let frame = 0
+    const step = () => {
+      frame++
+      el.textContent = [...final].map((c, i) => (frame > i * 2 + 3 ? c : HEX[(Math.random() * 16) | 0])).join('')
+      if (frame < final.length * 2 + 4) setTimeout(step, 30)
+      else el.textContent = final
+    }
+    step()
+  }
+  reveal('.commit', (row) => {
+    const hash = row.querySelector('.hash')
+    if (hash) scramble(hash)
+  })
+  reveal('.aside-block')
+
+  // paper: figures grow, headings get their pen stroke
+  reveal('.paper figure')
+  reveal('.paper h3.num')
+
+  // dossier: sheets come off the stack, the cover is typed, the stamp lands
+  const typewrite = (el, delay, speed) => {
+    const text = el.textContent
+    el.setAttribute('aria-label', text)
+    el.textContent = ''
+    const caret = document.createElement('span')
+    caret.className = 'type-caret'
+    caret.setAttribute('aria-hidden', 'true')
+    el.append(caret)
+    let i = 0
+    setTimeout(function tick() {
+      caret.before(text[i++])
+      if (i < text.length) setTimeout(tick, speed)
+      else setTimeout(() => caret.remove(), 900)
+    }, delay)
+    return delay + text.length * speed
+  }
+  reveal('.sheet', (sheet) => {
+    if (!sheet.classList.contains('cover')) return
+    const fileNo = sheet.querySelector('.file-no')
+    const name = sheet.querySelector('h2')
+    const after = fileNo ? typewrite(fileNo, 200, 20) : 0
+    if (name) typewrite(name, after + 120, 55)
+  })
+  document.querySelectorAll('.stamp').forEach((stamp) => {
+    stamp.addEventListener('click', () => {
+      restart(stamp, 'restamp')
+      restart(stamp.closest('.sheet'), 'thud')
+    })
+  })
+
+  // view switcher: the underline slides; a new view fades in
+  const list = document.querySelector('.views__list')
+  const indicator = document.createElement('span')
+  indicator.className = 'views__indicator'
+  indicator.setAttribute('aria-hidden', 'true')
+  list.append(indicator)
+  const moveIndicator = () => {
+    const tab = list.querySelector('[aria-selected="true"]')
+    if (!tab) return
+    indicator.style.width = `${tab.offsetWidth}px`
+    indicator.style.transform = `translateX(${tab.offsetLeft}px)`
+  }
+  moveIndicator()
+  requestAnimationFrame(() => indicator.classList.add('ready'))
+  document.fonts?.ready.then(moveIndicator)
+  addEventListener('resize', moveIndicator)
+
+  for (const v of VIEWS) {
+    const section = document.getElementById(`view-${v.id}`)
+    section.addEventListener('animationend', (event) => {
+      if (event.target === section) section.classList.remove('entering')
+    })
+  }
+  addEventListener('cv:view', (event) => {
+    moveIndicator()
+    restart(document.getElementById(`view-${event.detail}`), 'entering')
+    if (event.detail === 'map') startMap()
+  })
+
+  // ---------- the map comes alive ----------
+
+  const speed = { factor: 1 }
+  let mapStarted = false
+
+  function startMap() {
+    if (mapStarted) return
+    mapStarted = true
+    const svg = document.querySelector('.map')
+    svg.querySelectorAll('.track').forEach((path, i) => {
+      path.style.setProperty('--len', path.getTotalLength())
+      path.style.setProperty('--ti', i)
+    })
+    svg.classList.add('drawing')
+    setTimeout(() => svg.classList.remove('drawing'), 2800)
+    setTimeout(() => runTrains(svg), 1400)
+  }
+
+  function runTrains(svg) {
+    const NS = 'http://www.w3.org/2000/svg'
+    const layer = svg.querySelector('.trains')
+
+    const lines = [...svg.querySelectorAll('.track')].map((path) => {
+      const d = path.dataset.d
+      const length = path.getTotalLength()
+      // x only grows along a track, so the distance to a station can be found by bisection
+      const distanceAtX = (x) => {
+        let lo = 0
+        let hi = length
+        for (let k = 0; k < 28; k++) {
+          const mid = (lo + hi) / 2
+          if (path.getPointAtLength(mid).x < x) lo = mid
+          else hi = mid
+        }
+        return hi
+      }
+      const stations = [...svg.querySelectorAll(`.station[data-lines~="${d}"]`)]
+        .map((g) => ({ g, at: distanceAtX(Number(g.dataset.x)) }))
+        .sort((a, b) => a.at - b.at)
+      return { path, d, length, stations }
+    })
+
+    const fleet = []
+    const dispatch = (line, at = 0) => {
+      const g = document.createElementNS(NS, 'g')
+      g.setAttribute('class', 'train')
+      g.innerHTML = `<rect class="car" x="-28" y="-10" width="56" height="20" rx="10" fill="${COLOR[line.d]}"/><rect class="win" x="-18" y="-4" width="10" height="7" rx="2"/><rect class="win" x="-5" y="-4" width="10" height="7" rx="2"/><rect class="win" x="8" y="-4" width="10" height="7" rx="2"/>`
+      layer.append(g)
+      fleet.push({ line, g, pos: at, dwell: 0, pace: 120 + Math.random() * 50 })
+    }
+    for (const line of lines) {
+      dispatch(line, Math.random() * line.length * 0.35)
+      dispatch(line, line.length * (0.5 + Math.random() * 0.3))
+    }
+
+    const arrive = (station, d) => {
+      const ping = station.querySelector(`.ping[data-d="${d}"]`)
+      if (ping) restart(ping, 'go')
+    }
+
+    let visible = false
+    new IntersectionObserver(([entry]) => (visible = entry.isIntersecting)).observe(svg)
+
+    let last = performance.now()
+    const frame = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000)
+      last = now
+      if (visible && !document.hidden) {
+        for (const train of fleet) {
+          const { line } = train
+          if (train.dwell > 0) {
+            train.dwell -= dt * speed.factor
+          } else {
+            const next = train.pos + train.pace * speed.factor * dt
+            const stop = line.stations.find((s) => s.at > train.pos && s.at <= next)
+            if (stop) {
+              train.pos = stop.at
+              train.dwell = 0.9
+              arrive(stop.g, line.d)
+            } else {
+              train.pos = next
+            }
+            if (train.pos >= line.length) train.pos = 0
+          }
+          const p = line.path.getPointAtLength(train.pos)
+          const q = line.path.getPointAtLength(Math.min(line.length, train.pos + 2))
+          const angle = (Math.atan2(q.y - p.y, q.x - p.x) * 180) / Math.PI
+          const edge = Math.min(train.pos, line.length - train.pos)
+          train.g.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${angle.toFixed(1)})`)
+          train.g.style.opacity = Math.max(0, Math.min(1, edge / 70)).toFixed(2)
+        }
+      }
+      requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+
+    // the depot sends out another train on a random line
+    const depot = svg.querySelector('.depot')
+    const sendTrain = () => {
+      restart(depot, 'wiggle')
+      if (fleet.length < 30) dispatch(lines[(Math.random() * lines.length) | 0])
+    }
+    depot.addEventListener('click', sendTrain)
+    depot.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        sendTrain()
+      }
+    })
+    svg.querySelectorAll('.station').forEach((g) => g.addEventListener('click', () => g.querySelectorAll('.ping').forEach((ping) => restart(ping, 'go'))))
+  }
+
+  // ↑ ↑ ↓ ↓ ← → ← → B A: rush hour
+  const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
+  let konami = 0
+  addEventListener('keydown', (event) => {
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key
+    konami = key === KONAMI[konami] ? konami + 1 : key === KONAMI[0] ? 1 : 0
+    if (konami < KONAMI.length) return
+    konami = 0
+    show('map')
+    const card = document.querySelector('.map-card')
+    card.classList.add('rush')
+    speed.factor = 3.4
+    setTimeout(() => {
+      card.classList.remove('rush')
+      speed.factor = 1
+    }, 9000)
+  })
+
+  if (!document.getElementById('view-map').hidden) startMap()
 })()
