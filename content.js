@@ -11,7 +11,7 @@ window.CV = {
     linkedin: 'https://www.linkedin.com/in/emil-hovhannisyan-30735124b',
   },
   summary:
-    'Software engineer working across applied AI, web platforms and data. At Cretrix I build the Python backend behind two AI document products — reading engineering drawing sets for a chatbot and filling vendor vouchers from invoices, with OCR, vision models and measured per-field accuracy; at Bizzy Agency I ship production React applications; and I deliver realtime platforms for private clients.',
+    'Software engineer working across applied AI, web platforms and data. At Cretrix I build the Python backend behind two AI document products — reading engineering drawing sets for a chatbot and filling vendor vouchers from invoices, with OCR, vision models and measured per-field accuracy; at Bizzy Agency I ship production React applications; and I build Telegram Mini App games and bots for private clients.',
 
   // current roles and engagements
   experience: [
@@ -39,16 +39,17 @@ window.CV = {
     {
       id: 'nda-games',
       kind: 'nda',
-      title: 'Telegram Mini App game platforms',
+      title: 'Telegram Mini App games and bots',
       org: 'Confidential client',
       start: '2026',
       end: null,
       points: [
-        'Board-game platform (chess, long backgammon, draughts, reversi, four-in-a-row) with bots in a web worker and realtime multiplayer at ~250 ms move delivery',
-        'One rules engine shared by client and server, behind nine switchable visual themes',
+        'Three games shipped as Telegram Mini Apps behind Telegram bots, with sign-in verified from Telegram initData on the server',
+        'Board-game platform (chess, long backgammon, draughts, reversi, four-in-a-row): bots in a web worker, realtime multiplayer at ~250 ms move delivery, one rules engine shared by client and server, nine visual themes',
         'One-on-one card club: provably fair game server, double-entry chip ledger, matchmaking and turn clocks, covered by end-to-end tests',
+        'Satirical bunker idle clicker: server-validated economy with anti-cheat bounds, rewards re-judged on every save, bot referral links, and an analytics pipeline for retention, progression and sessions',
       ],
-      stack: ['React', 'TypeScript', 'Vite', 'Node.js', 'WebSockets', 'Supabase', 'PostgreSQL', 'SQLite'],
+      stack: ['Telegram Mini Apps', 'Telegram Bot API', 'React', 'TypeScript', 'Node.js', 'WebSockets', 'Supabase', 'PostgreSQL'],
       domains: ['games', 'web'],
     },
     {
@@ -210,16 +211,6 @@ window.CV = {
       featured: true,
     },
     {
-      id: 'airpop',
-      name: 'AirPop',
-      date: '2026-05',
-      tagline: 'A bubble shooter you play with your hands',
-      text: 'Touchless, physics-based bubble shooter: MediaPipe tracks 21 hand landmarks at 60 fps, a pinch fires, and a custom collision engine runs the board. Neo-brutalist interface.',
-      stack: ['React', 'TypeScript', 'MediaPipe', 'Canvas'],
-      url: null,
-      domains: ['games', 'ml'],
-    },
-    {
       id: 'eventsphere',
       name: 'EventSphere Analytics',
       date: '2026-04',
@@ -251,26 +242,10 @@ window.CV = {
       domains: ['ml', 'web'],
       featured: true,
     },
-    {
-      id: 'complaint',
-      name: 'Complaint-O-Tron 3000',
-      date: '2025-04',
-      tagline: 'Complaint management with ML insights',
-      text: 'Desktop app with accounts, a moderator dashboard, and ML-driven insights such as urgency prediction and sentiment analysis.',
-      stack: ['Python', 'tkinter', 'scikit-learn', 'TextBlob'],
-      url: 'https://github.com/emilhovh/Complaint-O-Tron-3000',
-      domains: ['ml', 'systems'],
-    },
   ],
 
-  archive: [
-    { name: 'FactCheckBot', year: 2025, url: 'https://github.com/emilhovh/FactCheckBot' },
-    { name: 'Diabetic Retinopathy Scanner', year: 2025, url: 'https://github.com/emilhovh/Diabetic-Retinopathy-Scanner' },
-    { name: 'Pac-Man in Python', year: 2025, url: 'https://github.com/emilhovh/Pac-Man' },
-    { name: 'Library Management (C#, WPF)', year: 2024, url: 'https://github.com/emilhovh/Library-Management' },
-    { name: 'Algorithms coursework (C#, C)', year: 2024, url: 'https://github.com/emilhovh/Algorithms_and_Pr_langs' },
-    { name: 'Laptop Quality Control System (C)', year: 2023, url: 'https://github.com/emilhovh/Project-S1' },
-  ],
+  // older, smaller repositories worth linking; empty means the section is not shown
+  archive: [],
 
   skills: [
     { group: 'AI & computer vision', items: ['Computer vision', 'OCR (Tesseract)', 'PDF extraction (PyMuPDF)', 'Vision LLMs', 'RAG', 'TensorFlow', 'XGBoost'] },

@@ -70,7 +70,7 @@
           <h2 id="now-title">Now</h2>
           <ul class="now-list">
             ${currentWork.map((r) => `<li>${badge(r.domains[0])}<div><b>${esc(r.title)}</b><span class="org">${esc(r.org)}, since ${month(r.start)}</span></div></li>`).join('')}
-            <li>${badge('games')}<div><b>${ndaCount} confidential client engagements</b><span class="org">Web, mobile and realtime platforms <span class="nda-tag">NDA</span></span></div></li>
+            <li>${badge('games')}<div><b>${ndaCount} confidential client engagements</b><span class="org">Telegram Mini Apps, web and mobile <span class="nda-tag">NDA</span></span></div></li>
           </ul>
           <ul class="legend" aria-label="Colour key for areas of work">
             ${DOMAINS.map((d) => `<li>${badge(d, 'badge--sm')}${esc(cv.domains[d])}</li>`).join('')}
@@ -156,9 +156,9 @@
           <section class="aside-block" aria-labelledby="t-certs"><h2 id="t-certs">certificates</h2>
             <ul class="plain-list">${cv.certificates.map((c) => `<li>${esc(c.name)}<small>${esc(c.org)}${c.year ? `, ${c.year}` : ''}</small></li>`).join('')}</ul>
           </section>
-          <section class="aside-block" aria-labelledby="t-archive"><h2 id="t-archive">archive</h2>
+          ${cv.archive.length ? `<section class="aside-block" aria-labelledby="t-archive"><h2 id="t-archive">archive</h2>
             <ul class="plain-list">${cv.archive.map((a) => `<li><a href="${a.url}" rel="noopener">${esc(a.name)}</a><small>${a.year}</small></li>`).join('')}</ul>
-          </section>
+          </section>` : ''}
         </aside>
       </div>`
   }
