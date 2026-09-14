@@ -1,0 +1,437 @@
+/* Commit Log — a career read as `git log --graph`: four branches, one dot per event */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #0f1419;
+  --muted: #5a6370;
+  --faint: #8b93a0;
+  --line: #e2e5ea;
+  --work: #e5484d;
+  --nda: #2b2f36;
+  --projects: #0f9d8a;
+  --study: #7a5af5;
+  --add: #0f7b55;
+  --add-bg: #e7f6ef;
+  --hunk: #6b56c9;
+  --hunk-bg: #f0edfb;
+  --sans: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+  --lane-gap: 22px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font: 16px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--faint);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--projects);
+  outline-offset: 2px;
+}
+
+.layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 64px;
+}
+
+/* ---------- identity ---------- */
+
+.identity {
+  position: sticky;
+  top: 40px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.path {
+  margin: 0;
+  font: 500 14px var(--mono);
+  color: var(--muted);
+}
+
+.path b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.identity h1 {
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.role {
+  margin: -8px 0 0;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.summary {
+  margin: 0;
+  color: #2b3139;
+}
+
+.config {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font: 13px/1.9 var(--mono);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+}
+
+.config dt {
+  color: var(--faint);
+}
+
+.config dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.branches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font: 500 13px var(--mono);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.branch i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.branch small {
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.branch[aria-pressed='false'] {
+  color: var(--faint);
+  background: transparent;
+}
+
+.branch[aria-pressed='false'] i {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--c);
+}
+
+/* ---------- log ---------- */
+
+.prompt {
+  margin: 0 0 18px;
+  font: 14px var(--mono);
+  color: var(--muted);
+}
+
+.prompt b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.commit {
+  display: grid;
+  grid-template-columns: calc(var(--lane-gap) * 4 + 12px) 1fr;
+}
+
+.commit[hidden] {
+  display: none;
+}
+
+/* four branch lines run through every row; the dot sits on this commit's lane */
+.rail {
+  position: relative;
+  background:
+    linear-gradient(var(--work), var(--work)) calc(var(--lane-gap) * 0 + 5px) 0 / 2px 100% no-repeat,
+    repeating-linear-gradient(var(--nda) 0 6px, transparent 6px 11px) calc(var(--lane-gap) * 1 + 5px) 0 / 2px 100% no-repeat,
+    linear-gradient(var(--projects), var(--projects)) calc(var(--lane-gap) * 2 + 5px) 0 / 2px 100% no-repeat,
+    linear-gradient(var(--study), var(--study)) calc(var(--lane-gap) * 3 + 5px) 0 / 2px 100% no-repeat;
+  opacity: 0.9;
+}
+
+.rail::after {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: calc(var(--lane) * var(--lane-gap));
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow:
+    inset 0 0 0 3px var(--c),
+    0 0 0 3px var(--bg);
+}
+
+.commit.is-head .rail::after {
+  background: var(--c);
+}
+
+.card {
+  padding: 16px 0 28px;
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+
+.meta {
+  margin: 0 0 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  font: 13px var(--mono);
+  color: var(--faint);
+}
+
+.hash {
+  color: var(--c);
+  font-weight: 600;
+}
+
+.ref {
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  color: var(--c);
+  font-size: 12px;
+}
+
+.ref--head {
+  background: var(--c);
+  border-color: var(--c);
+  color: #fff;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.org {
+  margin: 2px 0 10px;
+  color: var(--muted);
+}
+
+.nda-mark {
+  display: inline-block;
+  padding: 0 8px;
+  margin-left: 4px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(135deg, var(--nda) 0 6px, #3d424a 6px 12px);
+  color: #fff;
+  font: 500 12px var(--mono);
+  vertical-align: 2px;
+}
+
+.card ul {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  color: #2b3139;
+}
+
+.card li + li {
+  margin-top: 4px;
+}
+
+.card p.text {
+  margin: 0 0 12px;
+  color: #2b3139;
+  max-width: 68ch;
+}
+
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stack li {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eceff3;
+  font: 12px/1.7 var(--mono);
+  color: #39414b;
+}
+
+.card .stack li + li {
+  margin-top: 0;
+}
+
+.open {
+  display: inline-block;
+  margin-top: 12px;
+  font: 500 13px var(--mono);
+}
+
+/* ---------- skills as a diff ---------- */
+
+.section {
+  margin-top: 56px;
+}
+
+.section h2 {
+  margin: 0 0 14px;
+  font: 600 15px var(--mono);
+}
+
+.section h2 span {
+  color: var(--faint);
+  font-weight: 400;
+}
+
+.diff {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
+  font: 13px/1.85 var(--mono);
+}
+
+.diff div {
+  padding: 0 16px;
+  white-space: pre-wrap;
+}
+
+.diff .hunk {
+  background: var(--hunk-bg);
+  color: var(--hunk);
+}
+
+.diff .add {
+  background: var(--add-bg);
+  color: var(--add);
+}
+
+.langs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.lang {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lang b {
+  font-weight: 600;
+}
+
+.lang span {
+  color: var(--faint);
+  font-size: 14px;
+}
+
+.meter {
+  display: flex;
+  gap: 3px;
+}
+
+.meter i {
+  width: 14px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.meter i.on {
+  background: var(--projects);
+}
+
+.archive {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font: 14px/2 var(--mono);
+}
+
+.archive span {
+  color: var(--faint);
+}
+
+footer {
+  margin-top: 56px;
+  font: 13px var(--mono);
+  color: var(--faint);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 32px 18px 64px;
+  }
+  .identity {
+    position: static;
+  }
+  .identity h1 {
+    font-size: 38px;
+  }
+  :root {
+    --lane-gap: 16px;
+  }
+}

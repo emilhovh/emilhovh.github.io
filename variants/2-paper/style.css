@@ -1,0 +1,325 @@
+/* Paper — the CV typeset as a research article: abstract, tables, figures from real data, references */
+:root {
+  --desk: #e7e8ea;
+  --page: #ffffff;
+  --ink: #141414;
+  --muted: #555a61;
+  --rule: #141414;
+  --hair: #d6d8dc;
+  --link: #1d3f8f;
+  --fig-a: #1d3f8f;
+  --fig-b: #b33a3a;
+  --fig-c: #2f7d5b;
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Source Code Pro', ui-monospace, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--desk);
+}
+
+body {
+  margin: 0;
+  padding: 48px 24px 96px;
+  color: var(--ink);
+  font: 18px/1.62 var(--serif);
+  font-optical-sizing: auto;
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+.page {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 72px 96px 88px;
+  background: var(--page);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 20px 50px -30px rgba(0, 0, 0, 0.35);
+}
+
+.running {
+  position: absolute;
+  top: 28px;
+  left: 96px;
+  right: 96px;
+  display: flex;
+  justify-content: space-between;
+  font: 13px var(--sans);
+  color: var(--muted);
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 6px;
+}
+
+.title {
+  text-align: center;
+  margin: 24px 0 40px;
+}
+
+.title h1 {
+  margin: 0 auto 18px;
+  max-width: 22ch;
+  font-size: 34px;
+  line-height: 1.18;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.author {
+  margin: 0;
+  font-size: 19px;
+}
+
+.affil {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.contact {
+  margin: 10px 0 0;
+  font: 14px var(--mono);
+}
+
+.contact a + a::before {
+  content: ' · ';
+  color: var(--muted);
+}
+
+.abstract {
+  margin: 0 auto 36px;
+  max-width: 62ch;
+  font-size: 16.5px;
+}
+
+.abstract h2 {
+  margin: 0 0 4px;
+  text-align: center;
+  font: 600 15px var(--sans);
+  letter-spacing: 0.04em;
+}
+
+.abstract p {
+  margin: 0;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.keywords {
+  margin-top: 10px !important;
+  font-size: 15.5px;
+}
+
+h2.section {
+  margin: 44px 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+h2.section span {
+  display: inline-block;
+  min-width: 1.6em;
+}
+
+h3 {
+  margin: 26px 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+h3 span {
+  display: inline-block;
+  min-width: 2.4em;
+}
+
+p {
+  margin: 0 0 12px;
+}
+
+.body p {
+  text-align: justify;
+  hyphens: auto;
+}
+
+sup a {
+  text-decoration: none;
+}
+
+/* booktabs-style tables */
+.table-wrap {
+  margin: 20px 0 8px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15.5px;
+  line-height: 1.45;
+}
+
+caption {
+  caption-side: top;
+  text-align: left;
+  font: 14.5px/1.5 var(--sans);
+  padding-bottom: 8px;
+}
+
+caption b {
+  font-weight: 600;
+}
+
+thead th {
+  border-top: 2px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  font-weight: 600;
+  padding: 6px 10px 6px 0;
+}
+
+tbody td {
+  padding: 8px 10px 8px 0;
+  vertical-align: top;
+}
+
+tbody tr:last-child td {
+  border-bottom: 2px solid var(--rule);
+}
+
+td.when {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+td small {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+figure {
+  margin: 28px 0 8px;
+}
+
+figure svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+figcaption {
+  margin-top: 8px;
+  font: 14.5px/1.5 var(--sans);
+  color: var(--ink);
+}
+
+figcaption b {
+  font-weight: 600;
+}
+
+.axis text,
+.label {
+  font: 12px var(--sans);
+  fill: var(--muted);
+}
+
+.tick {
+  stroke: var(--hair);
+}
+
+.bar-a {
+  fill: var(--fig-a);
+}
+
+.bar-b {
+  fill: var(--fig-b);
+}
+
+.bar-c {
+  fill: var(--fig-c);
+}
+
+.stem {
+  stroke: var(--hair);
+  stroke-width: 1;
+}
+
+.references {
+  padding-left: 0;
+  list-style: none;
+  font-size: 15.5px;
+}
+
+.references li {
+  display: grid;
+  grid-template-columns: 2.6em 1fr;
+  margin-bottom: 6px;
+}
+
+.references code {
+  font: 13.5px var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.body .footnotes p {
+  text-align: left;
+}
+
+.footnotes {
+  margin-top: 36px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hair);
+  font-size: 14px;
+  color: var(--muted);
+  width: 40%;
+  min-width: 260px;
+}
+
+.page-number {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 13px var(--sans);
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  body {
+    padding: 0;
+    font-size: 17px;
+  }
+  .page {
+    padding: 56px 20px 72px;
+    box-shadow: none;
+  }
+  .running {
+    left: 20px;
+    right: 20px;
+  }
+  .title h1 {
+    font-size: 27px;
+  }
+  .abstract p,
+  .body p {
+    text-align: left;
+  }
+}
