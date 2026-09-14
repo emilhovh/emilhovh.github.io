@@ -14,6 +14,36 @@ One CV, four views of the same content, on one design system:
 
 The view is kept in the URL (`/#map`, `/#paper`…), so a link opens a specific view.
 
+## Languages
+
+English, Armenian, Russian and French, switchable in the header. The choice is remembered and
+kept in the link (`/?lang=hy#map`); a first visit follows the browser's language.
+
+- **Content** lives in `content.js`. A text value is either plain — the same in every language
+  (names, technologies) — or `{ en, hy, ru, fr }`. Anything missing falls back to English.
+- **Interface text** lives in `assets/i18n.js`, the same keys in every language. Where a number
+  changes the words, a message holds plural forms chosen by `Intl.PluralRules`
+  (`3 конфиденциальных проекта`, `3 missions confidentielles`).
+- **Dates, numbers and lists** are formatted per language with `Intl`; Armenian month names are
+  built in because browsers often lack them.
+- Armenian letters come from Noto Sans / Serif Armenian, which fill in where IBM Plex has none.
+
+A missing key shows up as `⟦key⟧` on the page and as a console warning.
+
+## Themes
+
+Six themes in the header's theme menu, remembered per browser: **Match system** (daylight or
+night, following the device), **Daylight**, **Night shift**, **Blueprint**, **Yerevan tuff** and
+**High contrast**. A theme only redefines colour tokens in `assets/site.css`, so every view — the
+map lines, trains, figures and the stamp included — follows it. Printing always uses daylight
+colours.
+
+## Motion
+
+The rising name, the self-drawing git graph, trains on the map (click the depot to send another;
+↑↑↓↓←→←→BA for rush hour), the typed dossier and the stamp are off for visitors who ask for
+reduced motion, and with `?static` in the URL.
+
 ```
 index.html        the site
 assets/site.css   the design system: tokens, shared components, the four views, print

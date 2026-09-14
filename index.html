@@ -1,15 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="auto">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Emil Hovhannisyan — Software Engineer</title>
     <meta name="description" content="Emil Hovhannisyan, software engineer in Yerevan: Python AI (computer vision, OCR, RAG), full-stack web platforms and data-driven systems." />
+    <meta name="theme-color" content="#0c2340" />
     <meta property="og:title" content="Emil Hovhannisyan — Software Engineer" />
-    <meta property="og:description" content="Python AI, full-stack web and data-driven systems. One CV, four views: timeline, map, paper and dossier." />
+    <meta property="og:description" content="Python AI, full-stack web and data-driven systems. One CV, four views, four languages." />
+    <link rel="alternate" hreflang="en" href="https://emilhovh.github.io/?lang=en" />
+    <link rel="alternate" hreflang="hy" href="https://emilhovh.github.io/?lang=hy" />
+    <link rel="alternate" hreflang="ru" href="https://emilhovh.github.io/?lang=ru" />
+    <link rel="alternate" hreflang="fr" href="https://emilhovh.github.io/?lang=fr" />
+    <script>
+      // the saved theme is applied before anything paints, so the page never flashes the wrong one
+      try {
+        var saved = localStorage.getItem('cv.theme')
+        if (saved) document.documentElement.setAttribute('data-theme', saved)
+      } catch (e) {}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Armenian:wght@400;500;600;700&family=Noto+Serif+Armenian:wght@400;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/site.css" />
   </head>
   <body>
@@ -18,6 +30,7 @@
       <p style="padding: 24px">Emil Hovhannisyan — Software Engineer, Yerevan. Email emilhovhannisyan44@gmail.com · github.com/emilhovh</p>
     </noscript>
     <script src="content.js"></script>
+    <script src="assets/i18n.js"></script>
     <script src="assets/app.js"></script>
   </body>
 </html>
